@@ -252,8 +252,14 @@ npm run setup
 # 3. Build client + start server
 npm run start
 # or with pm2:
-pm2 start "npm start" --name chagadi
+pm2 start "npm start" --name chagadi --cron-restart="0 0,12 * * *"
+pm2 save
 
 # 4. Add nginx location block (see above), then:
 sudo nginx -t && sudo systemctl reload nginx
 ```
+
+### Prerequisites
+- Node 20+ required (uses optional chaining, nullish coalescing, ES modules)
+- If using nvm, reinstall pm2 under nvm's Node: `nvm use 20 && npm install -g pm2`
+- System-installed pm2 (under old Node) won't work — it runs with the system Node version
