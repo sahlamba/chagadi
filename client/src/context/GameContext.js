@@ -110,7 +110,7 @@ export const GameProvider = ({ children }) => {
   return (
     <GameContext.Provider
       value={{
-        socket, game, loadingGame, joiningGame, readyingPlayer, startingGame, actionInProgress,
+        socket, game, player, loadingGame, joiningGame, readyingPlayer, startingGame, actionInProgress,
         connectPlayer, disconnectPlayer, joinGame, readyPlayer, startGame,
         placeBid, cancelBid, finalizeBidding, selectTrump, selectAllies, playCard, requestTrumpReveal,
         hasPlayerJoinedGame, isPlayerReady, isPlayerAdmin, isLeader,

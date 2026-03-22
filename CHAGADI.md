@@ -152,3 +152,56 @@ The server must NOT broadcast raw game state. Each player gets a filtered view:
 - Replace boilerplate `GamePlayUI/` — hand display, current trick (played cards),
   turn indicator, play card on click, trump reveal button, turn results
 - `GameOverUI/` — final scores, winner, team reveal
+
+## Table Layout (card-room POV)
+
+Goal: make the UI feel like sitting at a real card table.
+
+### Layout structure
+```
+              P3        P4
+           P2               P5
+
+          ┌─────────────────────┐
+          │   Table / Trick      │
+          │   (center area)      │
+          └─────────────────────┘
+
+             ╭── fan of cards ──╮
+                  You (P1)
+```
+
+- Bottom: current player's hand in a fan/arc layout (CSS rotated cards, overlapping)
+- Top half: 5 opponents arranged in a semicircle, each showing:
+  - Avatar + name
+  - Mini fan icon (2-3 fanned card backs representing their hand)
+  - Card count
+- Center: context-dependent content area:
+  - BIDDING: bid controls + bid list
+  - SELECTING_TRUMP: suit picker (leader) or waiting message
+  - SELECTING_ALLIES: card grid (leader) or waiting message
+  - PLAYING: played cards for current trick
+  - OVER: final scores + team reveal
+
+### Components
+- `TableLayout.js` — main spatial container, positions seats + center + player hand
+- `PlayerSeat.js` — single opponent: avatar, name, mini card fan, active turn highlight
+- `FanHand.js` — current player's cards in a fan arc (CSS transforms: rotate + translate per card)
+
+### Turn highlighting (PLAYING phase)
+- Active player's seat gets a glow/border highlight
+- Cards animate from hand → center trick area on play
+- Clockwise visual flow around the semicircle
+
+### Retrofit plan
+1. First: build TableLayout + PlayerSeat + FanHand, wire into PLAYING phase
+2. Then: retrofit BIDDING, SELECTING_TRUMP, SELECTING_ALLIES to render inside the table center area
+3. All phases share the same table view — only the center content changes
+
+### Mobile responsive
+- Fan hand: fewer cards visible at once, tighter overlap, smaller card size on narrow screens
+- Semicircle: collapse to a horizontal scroll row on small screens
+- Center area: stack vertically, scrollable if needed
+- Use Chakra `useBreakpointValue` for size/spacing breakpoints
+- Touch targets: minimum 44px tap area on all interactive elements
+- Card grid (ally selection): 2 suit rows visible at a time, scroll for rest
