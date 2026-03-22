@@ -239,3 +239,21 @@ location /chagadi {
 - `client/src/constants.js` — API_BASE_URL: use same origin (no hardcoded port)
 - `client/package.json` — `"homepage": "/chagadi"` for correct asset paths
 - pm2: `pm2 start server/index.js --name chagadi -- --port 8081`
+
+### Deploy steps (on cloud server)
+```bash
+# 1. Clone/pull cloud branch
+git clone -b cloud git@github.com:sahlamba/chagadi.git
+cd chagadi
+
+# 2. Install dependencies
+npm run setup
+
+# 3. Build client + start server
+npm run start
+# or with pm2:
+pm2 start "npm start" --name chagadi
+
+# 4. Add nginx location block (see above), then:
+sudo nginx -t && sudo systemctl reload nginx
+```
