@@ -1,5 +1,5 @@
 import React from 'react'
-import { Box, Flex, useBreakpointValue } from '@chakra-ui/react'
+import { Badge, Box, Flex, useBreakpointValue } from '@chakra-ui/react'
 
 import { useGameContext } from '../../context/GameContext'
 import { sortCards } from './CardDisplay'
@@ -7,7 +7,7 @@ import PlayerSeat from './PlayerSeat'
 import HandDisplay from './HandDisplay'
 
 const TableLayout = ({ children, onCardClick, selectedCard, hideHand }) => {
-  const { game, player, getMyHand } = useGameContext()
+  const { game, player, getMyHand, getMyTeam } = useGameContext()
   const seatGap = useBreakpointValue({ base: 1, md: 3 }) || 2
 
   if (!game?.players || !player) return null
@@ -26,9 +26,16 @@ const TableLayout = ({ children, onCardClick, selectedCard, hideHand }) => {
             key={pid}
             playerState={game.players[pid]}
             isActive={currentTurnPlayerId === pid}
+            isLeader={game.leaderId === pid}
           />
         ))}
       </Flex>
+
+      {getMyTeam() && (
+        <Badge colorScheme={getMyTeam() === 'leader' ? 'yellow' : 'red'} fontSize="xs">
+          You are {getMyTeam()} team
+        </Badge>
+      )}
 
       {/* Center — phase-specific content */}
       <Box

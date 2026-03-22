@@ -32,11 +32,11 @@ const filterGameForPlayer = (gameCode, playerId) => {
     filtered.trumpSuit = null
   }
 
-  // Hide leader team from non-team members (unless game over)
-  if (game.state !== 'OVER' && !game.leaderTeam.includes(playerId)) {
+  // Hide team info: each player only sees their own team (unless game over)
+  if (game.state !== 'OVER') {
     filtered.leaderTeam = []
     for (const pid of Object.keys(filtered.players)) {
-      if (filtered.players[pid].team) {
+      if (pid !== playerId && filtered.players[pid].team) {
         filtered.players[pid] = { ...filtered.players[pid], team: null }
       }
     }

@@ -6,14 +6,14 @@ import { useGameContext } from '../../../context/GameContext'
 import StartGameButton from './StartGameButton'
 
 const GameReadyToStartUI = () => {
-  const { isPlayerAdmin } = useGameContext()
+  const { isPlayerAdmin, game } = useGameContext()
 
   return (
     <Flex alignItems="center" justifyContent="center">
       {isPlayerAdmin() ? (
         <StartGameButton />
       ) : (
-        <Text>Waiting for game admin to start game...</Text>
+        <Text>Waiting for <Text as="span" fontWeight="bold" color="yellow.300">{game?.admin?.name || 'admin'}</Text> to start game...</Text>
       )}
     </Flex>
   )

@@ -27,7 +27,7 @@ const AllyControls = () => {
   const [picks, setPicks] = useState([])
 
   if (!isLeader()) {
-    return <Text color="gray.400">Waiting for the leader to call allies...</Text>
+    return <Text color="gray.400">Waiting for <Text as="span" fontWeight="bold" color="yellow.300">{game.players[game.leaderId]?.player?.name || 'the leader'}</Text> to call allies...</Text>
   }
 
   const myCards = getMyHand()

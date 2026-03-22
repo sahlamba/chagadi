@@ -12,10 +12,10 @@ const suits = [
 ]
 
 const TrumpControls = () => {
-  const { isLeader, selectTrump, actionInProgress } = useGameContext()
+  const { isLeader, selectTrump, actionInProgress, game } = useGameContext()
 
   if (!isLeader()) {
-    return <Text color="gray.400">Waiting for the leader to pick a trump suit...</Text>
+    return <Text color="gray.400">Waiting for <Text as="span" fontWeight="bold" color="yellow.300">{game.players[game.leaderId]?.player?.name || 'the leader'}</Text> to pick a trump suit...</Text>
   }
 
   return (

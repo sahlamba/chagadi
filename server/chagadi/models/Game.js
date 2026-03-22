@@ -51,6 +51,7 @@ export default class Game {
     this.leaderTeam = []    // [playerId, playerId, playerId]
     this.turnNumber = 0
     this.currentTurn = null // { playOrder, playedCards, leadSuit, trumpRevealedBy }
+    this.lastTurnResult = null // { winnerId, trickPoints, leaderTeamScore, enemyTeamScore }
   }
 
   static from(json) {
@@ -335,6 +336,8 @@ export default class Game {
       enemyTeamScore: this.enemyTeamScore,
       gameOver: false,
     }
+
+    this.lastTurnResult = result
 
     if (this.turnNumber >= TOTAL_TURNS) {
       this.state = GameState.OVER

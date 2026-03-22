@@ -18,7 +18,7 @@ const Header = ({ player }) => {
       </Heading>
       {player ? (
         <Flex direction="column" alignItems="center">
-          <Avatar size="sm" name={player.name} iconLabel={player.name} bg="yellow.500" color="gray.900" />
+          <Avatar size="sm" name={player.name} iconLabel={player.name} bg={player.color || 'yellow.500'} color="gray.900" />
           <Text fontSize="sm" color="gray.300">{player.name}</Text>
         </Flex>
       ) : null}

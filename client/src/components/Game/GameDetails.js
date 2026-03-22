@@ -43,6 +43,8 @@ const PlayersInGame = () => {
             <Avatar
               key={playerState.player.id}
               name={playerState.player.name}
+              bg={playerState.player.color || 'yellow.500'}
+              color="gray.900"
               showBorder>
               <AvatarBadge
                 boxSize="1.25em"
@@ -64,17 +66,12 @@ const PlayersInGame = () => {
 }
 
 const GameDetails = () => {
-  const { isPlayerAdmin } = useGameContext()
-
   return (
     <Flex mt={4} mb={8} direction="column" alignItems="center" gap={2}>
       <Flex alignItems="baseline" justifyContent="center">
         <GameCode />
         <PlayersInGame />
       </Flex>
-      {isPlayerAdmin() && (
-        <Badge colorScheme="yellow" fontSize="sm" px={3} py={1}>You are the admin</Badge>
-      )}
     </Flex>
   )
 }
