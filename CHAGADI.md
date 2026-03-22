@@ -205,3 +205,37 @@ Goal: make the UI feel like sitting at a real card table.
 - Use Chakra `useBreakpointValue` for size/spacing breakpoints
 - Touch targets: minimum 44px tap area on all interactive elements
 - Card grid (ally selection): 2 suit rows visible at a time, scroll for rest
+
+## Deployment
+
+Host: `cloud.sahillamba.com` (nginx reverse proxy + Let's Encrypt SSL)
+Path: `/chagadi` (same pattern as `/jotto`)
+Port: `8081` (Jotto uses 8080)
+Process manager: pm2
+
+### Nginx location block (add to sites-enabled conf)
+```nginx
+location /chagadi {
+    rewrite ^/chagadi/(.*)$ /$1 break;
+
+    proxy_http_version 1.1;
+    proxy_cache_bypass $http_upgrade;
+    proxy_redirect off;
+
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection 'upgrade';
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+
+    proxy_pass http://localhost:8081;
+}
+```
+
+### Server changes for deploy
+- `server/index.js` — default port → 8081
+- `server/socketio/index.js` — CORS origin: allow `cloud.sahillamba.com`
+- `client/src/constants.js` — API_BASE_URL: use same origin (no hardcoded port)
+- `client/package.json` — `"homepage": "/chagadi"` for correct asset paths
+- pm2: `pm2 start server/index.js --name chagadi -- --port 8081`
