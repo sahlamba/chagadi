@@ -6,6 +6,7 @@ import { useGameContext } from '../../context/GameContext'
 import GameDetails from './GameDetails'
 import GameCreatedUI from './GameCreatedUI'
 import GameReadyToStartUI from './GameReadyToStartUI'
+import GameBiddingUI from './GameBiddingUI'
 import GamePlayUI from './GamePlayUI'
 
 const GameContent = () => {
@@ -27,7 +28,7 @@ const GameContent = () => {
       case 'READY_TO_START':
         return <GameReadyToStartUI />
       case 'BIDDING':
-        return <Flex justify="center" mt={8}>Bidding phase — UI coming in 8b</Flex>
+        return <GameBiddingUI />
       case 'SELECTING_TRUMP':
         return <Flex justify="center" mt={8}>Trump selection — UI coming in 8c</Flex>
       case 'SELECTING_ALLIES':
