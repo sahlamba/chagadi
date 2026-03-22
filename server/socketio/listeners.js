@@ -27,8 +27,8 @@ const filterGameForPlayer = (gameCode, playerId) => {
   }
   filtered.players = players
 
-  // Hide trump suit until revealed
-  if (!game.trumpRevealed) {
+  // Hide trump suit until revealed (leader always sees it)
+  if (!game.trumpRevealed && playerId !== game.leaderId) {
     filtered.trumpSuit = null
   }
 

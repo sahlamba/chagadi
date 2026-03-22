@@ -7,6 +7,8 @@ import GameDetails from './GameDetails'
 import GameCreatedUI from './GameCreatedUI'
 import GameReadyToStartUI from './GameReadyToStartUI'
 import GameBiddingUI from './GameBiddingUI'
+import GameSelectTrumpUI from './GameSelectTrumpUI'
+import GameSelectAlliesUI from './GameSelectAlliesUI'
 import GamePlayUI from './GamePlayUI'
 
 const GameContent = () => {
@@ -30,9 +32,9 @@ const GameContent = () => {
       case 'BIDDING':
         return <GameBiddingUI />
       case 'SELECTING_TRUMP':
-        return <Flex justify="center" mt={8}>Trump selection — UI coming in 8c</Flex>
+        return <GameSelectTrumpUI />
       case 'SELECTING_ALLIES':
-        return <Flex justify="center" mt={8}>Ally selection — UI coming in 8c</Flex>
+        return <GameSelectAlliesUI />
       case 'PLAYING':
       case 'OVER':
         return <GamePlayUI />

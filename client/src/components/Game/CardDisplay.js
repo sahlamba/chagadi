@@ -30,12 +30,13 @@ const CardDisplay = ({ card, onClick, isSelected, isDisabled, size = 'md' }) => 
   const clickable = onClick && !isDisabled
 
   return (
+    <Box pb="8px" pt="8px">
     <Box
       w={s.w} h={s.h}
       border="2px solid"
       borderColor={isSelected ? 'yellow.400' : 'gray.500'}
       borderRadius="md"
-      bg={hidden ? 'gray.600' : 'white'}
+      bg={hidden ? 'gray.600' : isSelected ? 'yellow.100' : 'white'}
       display="flex" alignItems="center" justifyContent="center"
       cursor={clickable ? 'pointer' : 'default'}
       opacity={isDisabled ? 0.5 : 1}
@@ -52,6 +53,7 @@ const CardDisplay = ({ card, onClick, isSelected, isDisabled, size = 'md' }) => 
           {cardSymbol(card)}
         </Text>
       )}
+    </Box>
     </Box>
   )
 }
