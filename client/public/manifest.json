@@ -1,6 +1,6 @@
 {
-  "short_name": "Game",
-  "name": "Game",
+  "short_name": "Chagadi",
+  "name": "Chagadi",
   "icons": [
     {
       "src": "favicon.ico",
@@ -20,6 +20,6 @@
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#1a202c",
+  "background_color": "#171923"
 }

@@ -64,7 +64,7 @@ const JoinGameInput = ({ onSubmit }) => {
               <Button
                 type="submit"
                 size="lg"
-                colorScheme="purple"
+                colorScheme="yellow"
                 variant="solid"
                 rightIcon={<ArrowRightIcon />}>
                 Join

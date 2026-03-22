@@ -16,13 +16,13 @@ const BidsList = () => {
 
   return (
     <VStack spacing={1} mt={4}>
-      <Text fontSize="sm" color="gray.500">Current Bids</Text>
+      <Text fontSize="sm" color="gray.400">Current Bids</Text>
       {Object.entries(game.bids).map(([pid, amount]) => {
         const ps = game.players[pid]
         return (
           <HStack key={pid}>
-            <Text fontSize="sm">{ps?.player?.name || pid}:</Text>
-            <Badge colorScheme="purple">{amount}</Badge>
+            <Text fontSize="sm" color="gray.200">{ps?.player?.name || pid}:</Text>
+            <Badge colorScheme="yellow">{amount}</Badge>
           </HStack>
         )
       })}
@@ -31,21 +31,18 @@ const BidsList = () => {
 }
 
 const GameBiddingUI = () => {
-  const { game, getMyHand, placeBid, cancelBid, finalizeBidding, isPlayerAdmin, actionInProgress } = useGameContext()
+  const { game, getMyHand, getMyBid, placeBid, cancelBid, finalizeBidding, isPlayerAdmin } = useGameContext()
   const [bidAmount, setBidAmount] = useState(MIN_BID)
 
-  const myBid = game?.bids?.[game?.players && Object.keys(game.players).find(
-    pid => game.players[pid]?.player?.id && game.bids?.[pid]
-  )]
-
   const cards = getMyHand()
+  const hasBid = getMyBid() !== null
 
   return (
     <Flex direction="column" align="center" gap={6} mt={4}>
       <HandDisplay cards={cards} label="Your Cards" />
 
       <VStack spacing={3}>
-        <Text fontWeight="bold">Place Your Bid ({MIN_BID}–{MAX_BID})</Text>
+        <Text fontWeight="bold" color="gray.200">Place Your Bid ({MIN_BID}–{MAX_BID})</Text>
         <HStack>
           <NumberInput
             min={MIN_BID} max={MAX_BID} step={10}
@@ -61,17 +58,18 @@ const GameBiddingUI = () => {
           </NumberInput>
           <Button
             colorScheme="green" size="sm"
-            isLoading={actionInProgress}
+            
             onClick={() => placeBid(bidAmount)}
           >
             Bid
           </Button>
           <Button
             colorScheme="red" variant="outline" size="sm"
-            isLoading={actionInProgress}
+            
+            isDisabled={!hasBid}
             onClick={() => cancelBid()}
           >
-            Pass
+            Cancel
           </Button>
         </HStack>
       </VStack>
@@ -80,11 +78,10 @@ const GameBiddingUI = () => {
 
       {isPlayerAdmin() && (
         <Button
-          mt={4} colorScheme="purple"
-          isLoading={actionInProgress}
+          mt={4} colorScheme="yellow" color="gray.800"
+          
           isDisabled={!game?.bids || !Object.keys(game.bids).length}
           onClick={() => {
-            // Find highest bidder
             const entries = Object.entries(game.bids)
             const [leaderId] = entries.reduce((best, cur) => cur[1] > best[1] ? cur : best)
             finalizeBidding(leaderId)

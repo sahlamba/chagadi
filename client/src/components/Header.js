@@ -10,15 +10,16 @@ const Header = ({ player }) => {
       direction="row"
       alignItems="center"
       justifyContent="space-between"
-      color="purple.800"
-      boxShadow="lg">
+      bg="gray.800"
+      color="yellow.400"
+      boxShadow="dark-lg">
       <Heading>
         <Link to="/">Chagadi</Link>
       </Heading>
       {player ? (
         <Flex direction="column" alignItems="center">
-          <Avatar size="sm" name={player.name} iconLabel={player.name} />
-          <Text>{player.name}</Text>
+          <Avatar size="sm" name={player.name} iconLabel={player.name} bg="yellow.500" color="gray.900" />
+          <Text fontSize="sm" color="gray.300">{player.name}</Text>
         </Flex>
       ) : null}
     </Flex>

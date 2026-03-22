@@ -25,7 +25,7 @@ const CreateGameInput = ({ onSubmit, isCreatingGame }) => {
   return (
     <React.Fragment>
       <Button
-        colorScheme="purple"
+        colorScheme="yellow"
         variant="outline"
         rightIcon={<AddIcon />}
         onClick={onOpen}>
@@ -33,17 +33,17 @@ const CreateGameInput = ({ onSubmit, isCreatingGame }) => {
       </Button>
       <Modal closeOnOverlayClick={false} onClose={onClose} isOpen={isOpen} isCentered>
         <ModalOverlay />
-        <ModalContent>
+        <ModalContent bg="gray.800">
           <ModalHeader>New Chagadi Game</ModalHeader>
-          <ModalCloseButton />
+          <ModalCloseButton color="red.300" />
           <form onSubmit={submit}>
             <ModalBody>
               <Text>6 players required. Cards will be dealt after all players are ready.</Text>
             </ModalBody>
             <ModalFooter>
               <Stack direction="row" spacing={2}>
-                <Button onClick={onClose} disabled={isCreatingGame}>Close</Button>
-                <Button type="submit" colorScheme="purple" variant="solid" isLoading={isCreatingGame}>
+                <Button onClick={onClose} disabled={isCreatingGame} colorScheme="red" variant="outline">Close</Button>
+                <Button type="submit" colorScheme="yellow" variant="solid" isLoading={isCreatingGame}>
                   Create
                 </Button>
               </Stack>

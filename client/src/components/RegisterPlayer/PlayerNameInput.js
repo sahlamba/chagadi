@@ -33,7 +33,7 @@ const PlayerNameInput = () => {
               <Button
                 type="submit"
                 size="lg"
-                colorScheme="purple"
+                colorScheme="yellow"
                 variant="solid"
                 rightIcon={<ArrowRightIcon />}>
                 Go

@@ -85,6 +85,7 @@ export const GameProvider = ({ children }) => {
   const isLeader = () => game?.leaderId === player?.id
   const getMyHand = () => getPlayerState()?.hand?.cards || []
   const getMyTeam = () => getPlayerState()?.team || null
+  const getMyBid = () => game?.bids?.[player?.id] ?? null
   const getCurrentTurn = () => game?.currentTurn || null
   const isMyTurn = () => {
     const turn = getCurrentTurn()
@@ -113,7 +114,7 @@ export const GameProvider = ({ children }) => {
         connectPlayer, disconnectPlayer, joinGame, readyPlayer, startGame,
         placeBid, cancelBid, finalizeBidding, selectTrump, selectAllies, playCard, requestTrumpReveal,
         hasPlayerJoinedGame, isPlayerReady, isPlayerAdmin, isLeader,
-        getMyHand, getMyTeam, getCurrentTurn, isMyTurn, isGameOver,
+        getMyHand, getMyTeam, getMyBid, getCurrentTurn, isMyTurn, isGameOver,
         getPlayerState, notify,
       }}>
       {children}

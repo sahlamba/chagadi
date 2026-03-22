@@ -12,7 +12,7 @@ const PlayerNotJoined = () => {
   return (
     <Flex alignItems="center" justifyContent="center">
       <Button
-        colorScheme="purple"
+        colorScheme="yellow"
         variant="solid"
         rightIcon={<CheckIcon />}
         onClick={joinGameOnCLick}

@@ -75,7 +75,7 @@ const Home = () => {
       </Flex>
       {playerGameCodeMappings && playerGameCodeMappings.length ? (
         <Flex direction="column" alignItems="center" justifyContent="center">
-          <Heading as="u" mb={4} size="md" color="purple.800">
+          <Heading as="u" mb={4} size="md" color="yellow.400">
             Your Live Games
           </Heading>
           <List spacing={2}>
@@ -85,7 +85,7 @@ const Home = () => {
                   as={RouterLink}
                   to={`/game/${gameCode}`}
                   isExternal
-                  color="purple.500">
+                  color="yellow.400">
                   {gameCode} <ExternalLinkIcon mx="2px" />
                 </Link>
               </ListItem>

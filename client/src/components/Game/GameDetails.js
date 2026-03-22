@@ -64,10 +64,17 @@ const PlayersInGame = () => {
 }
 
 const GameDetails = () => {
+  const { isPlayerAdmin } = useGameContext()
+
   return (
-    <Flex mt={4} mb={8} alignItems="baseline" justifyContent="center">
-      <GameCode />
-      <PlayersInGame />
+    <Flex mt={4} mb={8} direction="column" alignItems="center" gap={2}>
+      <Flex alignItems="baseline" justifyContent="center">
+        <GameCode />
+        <PlayersInGame />
+      </Flex>
+      {isPlayerAdmin() && (
+        <Badge colorScheme="yellow" fontSize="sm" px={3} py={1}>You are the admin</Badge>
+      )}
     </Flex>
   )
 }
