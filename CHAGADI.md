@@ -71,28 +71,33 @@ Game phases (`BIDDING` → `OVER`) are Chagadi-specific.
 - Leader team score vs enemy team score
 - Leader wins if team score ≥ bid
 
-## Socket Events (to implement)
+## Socket Events
 
 | Client Event | Phase | Data |
 |---|---|---|
+| `connect_player` | any | `{ gameCode, player }` |
+| `disconnect_player` | any | `{ gameCode, player }` |
+| `join_game` | CREATED | `{ gameCode, player }` |
+| `ready_player` | CREATED | `{ gameCode, player }` |
+| `start_game` | READY_TO_START | `{ gameCode }` |
 | `place_bid` | BIDDING | `{ gameCode, player, amount }` |
 | `cancel_bid` | BIDDING | `{ gameCode, player }` |
-| `finalize_bidding` | BIDDING | `{ gameCode }` (admin only) |
-| `select_trump` | SELECTING_TRUMP | `{ gameCode, player, suit }` |
+| `finalize_bidding` | BIDDING | `{ gameCode, leaderId }` |
+| `select_trump` | SELECTING_TRUMP | `{ gameCode, player, suitName }` |
 | `select_allies` | SELECTING_ALLIES | `{ gameCode, player, card1, card2 }` |
 | `play_card` | PLAYING | `{ gameCode, player, card }` |
 | `request_trump_reveal` | PLAYING | `{ gameCode, player }` |
 
-| Server Broadcast | Data |
+Server emits a single unified event to each player individually:
+
+| Server Event | Data |
 |---|---|
-| `bid_placed` | `{ gameState }` (per-player filtered) |
-| `bidding_finalized` | `{ gameState }` |
-| `trump_selected` | `{ gameState }` |
-| `allies_selected` | `{ gameState }` (per-player: team role) |
-| `card_played` | `{ gameState }` |
-| `trump_revealed` | `{ gameState }` |
-| `turn_completed` | `{ gameState, turnResult }` |
-| `game_over` | `{ gameState, finalScores }` |
+| `game_updated` | `{ gameState }` (per-player filtered) |
+
+Filtering rules applied per-player in `emitToEachPlayer()`:
+- Other players' hands → replaced with `{ cardCount }` only
+- `trumpSuit` → `null` until `trumpRevealed` is true
+- `leaderTeam` + player `team` → hidden from non-team members (unless OVER)
 
 ## Card Model
 
@@ -123,4 +128,27 @@ The server must NOT broadcast raw game state. Each player gets a filtered view:
 5. ✅ Game.js — full game lifecycle, state machine, all phase logic (54 tests passing)
 6. ✅ index.js + db.js — Chagadi engine facade + LokiJS in-memory DB
 7. ✅ Socket events (listeners.js) — Chagadi events + per-player state filtering + controllers updated
-8. Client UI — next
+8. Client UI — 4 sub-phases:
+
+### 8a. Foundation (context + wiring)
+- `GameContext.js` — replace boilerplate `gameplay_input` with Chagadi actions:
+  `placeBid`, `cancelBid`, `finalizeBidding`, `selectTrump`, `selectAllies`,
+  `playCard`, `requestTrumpReveal`. Listen for unified `game_updated` event.
+  Add helpers: `getMyHand`, `isMyTurn`, `isLeader`, `getMyTeam`, `getCurrentTurn`.
+- `GameContent.js` — add switch cases for `BIDDING`, `SELECTING_TRUMP`, `SELECTING_ALLIES`
+- `Header.js` — rename title to "Chagadi"
+- `CreateGameInput.js` — fix maxPlayers to 6, remove word length
+- `GameSettings.js` — drop wordLength
+
+### 8b. Bidding UI
+- `GameBiddingUI/index.js` — show 5 visible + 3 hidden cards, bid input (280–508),
+  place/cancel bid buttons, display all bids, admin finalize button
+
+### 8c. Leader Phases UI
+- `GameSelectTrumpUI/index.js` — 4 suit buttons (leader only), waiting message for others
+- `GameSelectAlliesUI/index.js` — leader picks 2 ally cards from other hands, others wait
+
+### 8d. Playing + Game Over UI
+- Replace boilerplate `GamePlayUI/` — hand display, current trick (played cards),
+  turn indicator, play card on click, trump reveal button, turn results
+- `GameOverUI/` — final scores, winner, team reveal

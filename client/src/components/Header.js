@@ -13,7 +13,7 @@ const Header = ({ player }) => {
       color="purple.800"
       boxShadow="lg">
       <Heading>
-        <Link to="/">Game</Link>
+        <Link to="/">Chagadi</Link>
       </Heading>
       {player ? (
         <Flex direction="column" alignItems="center">

@@ -1,7 +1,7 @@
 export default class GameSettings {
-  maxPlayers // int
+  maxPlayers
 
-  constructor(maxPlayers, wordLength) {
+  constructor(maxPlayers) {
     this.maxPlayers = maxPlayers
   }
 

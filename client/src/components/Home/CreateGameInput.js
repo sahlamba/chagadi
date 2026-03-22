@@ -1,8 +1,6 @@
-import React, { useState } from 'react'
+import React from 'react'
 import {
   Button,
-  FormControl,
-  FormLabel,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -10,12 +8,8 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  NumberDecrementStepper,
-  NumberIncrementStepper,
-  NumberInput,
-  NumberInputField,
-  NumberInputStepper,
   Stack,
+  Text,
   useDisclosure,
 } from '@chakra-ui/react'
 import { AddIcon } from '@chakra-ui/icons'
@@ -23,19 +17,9 @@ import { AddIcon } from '@chakra-ui/icons'
 const CreateGameInput = ({ onSubmit, isCreatingGame }) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
 
-  const [maxPlayers, setMaxPlayers] = useState(2) // Fixed to 2 for MVP
-
-  const updateMaxPlayers = (valueAsString, valueAsNumber) => {
-    setMaxPlayers(valueAsNumber)
-  }
-
   const submit = (evt) => {
     evt.preventDefault()
-    onSubmit({
-      gameSettings: {
-        maxPlayers,
-      },
-    })
+    onSubmit({ gameSettings: { maxPlayers: 6 } })
   }
 
   return (
@@ -47,44 +31,19 @@ const CreateGameInput = ({ onSubmit, isCreatingGame }) => {
         onClick={onOpen}>
         Create Game
       </Button>
-      <Modal
-        closeOnOverlayClick={false}
-        onClose={onClose}
-        isOpen={isOpen}
-        isCentered>
+      <Modal closeOnOverlayClick={false} onClose={onClose} isOpen={isOpen} isCentered>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>New Game Settings</ModalHeader>
+          <ModalHeader>New Chagadi Game</ModalHeader>
           <ModalCloseButton />
           <form onSubmit={submit}>
             <ModalBody>
-              <FormControl>
-                <FormLabel htmlFor="max-players">Players</FormLabel>
-                {/* Fixed to 2 for MVP, hence disabled */}
-                <NumberInput
-                  max={4}
-                  min={2}
-                  value={maxPlayers}
-                  onChange={updateMaxPlayers}
-                  disabled={true}>
-                  <NumberInputField id="max-players" />
-                  <NumberInputStepper>
-                    <NumberIncrementStepper />
-                    <NumberDecrementStepper />
-                  </NumberInputStepper>
-                </NumberInput>
-              </FormControl>
+              <Text>6 players required. Cards will be dealt after all players are ready.</Text>
             </ModalBody>
             <ModalFooter>
               <Stack direction="row" spacing={2}>
-                <Button onClick={onClose} disabled={isCreatingGame}>
-                  Close
-                </Button>
-                <Button
-                  type="submit"
-                  colorScheme="purple"
-                  variant="solid"
-                  isLoading={isCreatingGame}>
+                <Button onClick={onClose} disabled={isCreatingGame}>Close</Button>
+                <Button type="submit" colorScheme="purple" variant="solid" isLoading={isCreatingGame}>
                   Create
                 </Button>
               </Stack>

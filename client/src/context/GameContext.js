@@ -4,7 +4,6 @@ import { useToast } from '@chakra-ui/react'
 
 import { API_BASE_URL } from '../constants'
 import { usePlayerContext } from './PlayerContext'
-
 import { getGameById } from '../utils/apiClient'
 import { notify } from '../utils/ui'
 
@@ -15,164 +14,107 @@ export const GameProvider = ({ children }) => {
 
   const [socket, setSocket] = useState(null)
   const [game, setGame] = useState(null)
-  const [loadingGame, setLoadingGame] = useState({
-    status: true,
-    message: '',
-  })
+  const [loadingGame, setLoadingGame] = useState({ status: true, message: '' })
   const [joiningGame, setJoiningGame] = useState(false)
   const [readyingPlayer, setReadyingPlayer] = useState(false)
   const [startingGame, setStartingGame] = useState(false)
-  const [gameplayInputInProgress, setGameplayInputInProgress] = useState(false)
+  const [actionInProgress, setActionInProgress] = useState(false)
 
   const toast = useToast()
 
   const getAndSetGame = async (gameCode) => {
     setLoadingGame({ status: true, message: 'Loading game' })
     try {
-      const game = await getGameById(gameCode)
-      setGame(game)
+      setGame(await getGameById(gameCode))
     } catch (error) {
       notify(toast, { title: error, status: 'error' })
     }
     setLoadingGame({ status: false, message: '' })
   }
 
+  // ── Emit helper ──
+
+  const emit = (event, data, { loading, setLoading } = {}) => {
+    if (!socket || !game) return
+    if (setLoading) setLoading(true)
+    socket.emit(event, { gameCode: game.code, ...data }, (err) => {
+      if (setLoading) setLoading(false)
+      if (err) notify(toast, { title: err.message, status: 'error' })
+    })
+  }
+
+  // ── Lobby actions ──
+
   const connectPlayer = (gameCode) => {
-    if (socket && gameCode) {
-      setLoadingGame({ status: true, message: 'Connecting player' })
-      socket.emit('connect_player', { gameCode, player }, (err) => {
-        setLoadingGame({ status: false, message: '' })
-        if (err) {
-          notify(toast, { title: err.message, status: 'error' })
-          return
-        }
-        getAndSetGame(gameCode)
-      })
-    }
+    if (!socket || !gameCode) return
+    setLoadingGame({ status: true, message: 'Connecting player' })
+    socket.emit('connect_player', { gameCode, player }, (err) => {
+      setLoadingGame({ status: false, message: '' })
+      if (err) {
+        notify(toast, { title: err.message, status: 'error' })
+        return
+      }
+      getAndSetGame(gameCode)
+    })
   }
 
   const disconnectPlayer = (gameCode) => {
-    if (socket && gameCode) {
-      socket.emit('disconnect_player', { gameCode, player })
-    }
+    if (socket && gameCode) socket.emit('disconnect_player', { gameCode, player })
   }
 
-  const joinGame = () => {
-    if (socket && game) {
-      setJoiningGame(true)
-      socket.emit('join_game', { gameCode: game.code, player }, (err) => {
-        setJoiningGame(false)
-        if (err) {
-          notify(toast, { title: err.message, status: 'error' })
-        }
-      })
-    }
-  }
+  const joinGame = () => emit('join_game', { player }, { setLoading: setJoiningGame })
+  const readyPlayer = () => emit('ready_player', { player }, { setLoading: setReadyingPlayer })
+  const startGame = () => emit('start_game', {}, { setLoading: setStartingGame })
 
-  const readyPlayer = () => {
-    if (socket && game) {
-      setReadyingPlayer(true)
-      socket.emit('ready_player', { gameCode: game.code, player }, (err) => {
-        setReadyingPlayer(false)
-        if (err) {
-          notify(toast, { title: err.message, status: 'error' })
-        }
-      })
-    }
-  }
+  // ── Chagadi actions ──
 
-  const startGame = () => {
-    if (socket && game) {
-      setStartingGame(true)
-      socket.emit('start_game', { gameCode: game.code }, (err) => {
-        setStartingGame(false)
-        if (err) {
-          notify(toast, { title: err.message, status: 'error' })
-        }
-      })
-    }
-  }
+  const placeBid = (amount) => emit('place_bid', { player, amount }, { setLoading: setActionInProgress })
+  const cancelBid = () => emit('cancel_bid', { player }, { setLoading: setActionInProgress })
+  const finalizeBidding = (leaderId) => emit('finalize_bidding', { leaderId }, { setLoading: setActionInProgress })
+  const selectTrump = (suitName) => emit('select_trump', { player, suitName }, { setLoading: setActionInProgress })
+  const selectAllies = (card1, card2) => emit('select_allies', { player, card1, card2 }, { setLoading: setActionInProgress })
+  const playCard = (card) => emit('play_card', { player, card }, { setLoading: setActionInProgress })
+  const requestTrumpReveal = () => emit('request_trump_reveal', { player }, { setLoading: setActionInProgress })
 
-  const acceptGameplayInput = (data) => {
-    if (socket && game) {
-      setGameplayInputInProgress(true)
-      socket.emit(
-        'gameplay_input',
-        { gameCode: game.code, player, data },
-        (err) => {
-          setGameplayInputInProgress(false)
-          if (err) {
-            notify(toast, { title: err.message, status: 'error' })
-          }
-        },
-      )
-    }
-  }
+  // ── Helpers ──
 
-  const getPlayerState = () => {
-    if (player && game && game.players && game.players[player.id]) {
-      return game.players[player.id]
-    }
-  }
-
+  const getPlayerState = () => player && game?.players?.[player.id] || null
   const hasPlayerJoinedGame = () => !!getPlayerState()
-  const isPlayerReady = () => !!getPlayerState() && getPlayerState().isReady
-  const isPlayerAdmin = () => player && game.admin.id === player.id
-  const isGameOver = () => game && game.state === 'OVER'
-  const didPlayerWin = () => isGameOver() && game.winnerId === player.id
+  const isPlayerReady = () => !!getPlayerState()?.isReady
+  const isPlayerAdmin = () => player && game?.admin?.id === player.id
+  const isLeader = () => game?.leaderId === player?.id
+  const getMyHand = () => getPlayerState()?.hand?.cards || []
+  const getMyTeam = () => getPlayerState()?.team || null
+  const getCurrentTurn = () => game?.currentTurn || null
+  const isMyTurn = () => {
+    const turn = getCurrentTurn()
+    return turn && turn.playOrder[turn.playedCards.length] === player?.id
+  }
+  const isGameOver = () => game?.state === 'OVER'
+
+  // ── Socket listeners ──
 
   useEffect(() => {
-    const socketListener = io(API_BASE_URL)
-
-    socketListener.on('connect', () => {
-      setSocket(socketListener)
-    })
-
-    socketListener.on('disconnect', () => {
-      setSocket(null)
-    })
-
-    socketListener.on('player_joined_game', ({ gameState }) => {
-      setGame(gameState)
-    })
-
-    socketListener.on('player_ready_in_game', ({ gameState }) => {
-      setGame(gameState)
-    })
-
-    socketListener.on('game_started', ({ gameState }) => {
-      setGame(gameState)
-    })
-
-    socketListener.on('player_submitted_gameplay_input', ({ gameState }) => {
-      setGame(gameState)
-    })
-
-    return () => socketListener.disconnect()
+    const s = io(API_BASE_URL)
+    s.on('connect', () => setSocket(s))
+    s.on('disconnect', () => setSocket(null))
+    s.on('game_updated', ({ gameState }) => setGame(gameState))
+    // Keep legacy listeners for lobby (initial join/ready before game_updated kicks in)
+    s.on('player_joined_game', ({ gameState }) => setGame(gameState))
+    s.on('player_ready_in_game', ({ gameState }) => setGame(gameState))
+    s.on('game_started', ({ gameState }) => setGame(gameState))
+    return () => s.disconnect()
   }, [])
 
   return (
     <GameContext.Provider
       value={{
-        socket,
-        game,
-        loadingGame,
-        joiningGame,
-        readyingPlayer,
-        startingGame,
-        gameplayInputInProgress,
-        connectPlayer,
-        disconnectPlayer,
-        joinGame,
-        readyPlayer,
-        startGame,
-        acceptGameplayInput,
-        hasPlayerJoinedGame,
-        isPlayerReady,
-        isGameOver,
-        didPlayerWin,
-        isPlayerAdmin,
-        notify,
+        socket, game, loadingGame, joiningGame, readyingPlayer, startingGame, actionInProgress,
+        connectPlayer, disconnectPlayer, joinGame, readyPlayer, startGame,
+        placeBid, cancelBid, finalizeBidding, selectTrump, selectAllies, playCard, requestTrumpReveal,
+        hasPlayerJoinedGame, isPlayerReady, isPlayerAdmin, isLeader,
+        getMyHand, getMyTeam, getCurrentTurn, isMyTurn, isGameOver,
+        getPlayerState, notify,
       }}>
       {children}
     </GameContext.Provider>

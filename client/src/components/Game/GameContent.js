@@ -20,15 +20,18 @@ const GameContent = () => {
   }
 
   const getGameStateUI = () => {
-    if (!game) {
-      return null
-    }
-
+    if (!game) return null
     switch (game.state) {
       case 'CREATED':
         return <GameCreatedUI />
       case 'READY_TO_START':
         return <GameReadyToStartUI />
+      case 'BIDDING':
+        return <Flex justify="center" mt={8}>Bidding phase — UI coming in 8b</Flex>
+      case 'SELECTING_TRUMP':
+        return <Flex justify="center" mt={8}>Trump selection — UI coming in 8c</Flex>
+      case 'SELECTING_ALLIES':
+        return <Flex justify="center" mt={8}>Ally selection — UI coming in 8c</Flex>
       case 'PLAYING':
       case 'OVER':
         return <GamePlayUI />
