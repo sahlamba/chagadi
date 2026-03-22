@@ -122,5 +122,5 @@ The server must NOT broadcast raw game state. Each player gets a filtered view:
 4. ✅ PlayerState.js — per-player state: hand, tricks, score, team
 5. ✅ Game.js — full game lifecycle, state machine, all phase logic (54 tests passing)
 6. ✅ index.js + db.js — Chagadi engine facade + LokiJS in-memory DB
-7. Socket events (listeners.js) — next
-8. Client UI — after socket layer
+7. ✅ Socket events (listeners.js) — Chagadi events + per-player state filtering + controllers updated
+8. Client UI — next
