@@ -5,6 +5,8 @@ import {
   Navigate,
 } from 'react-router-dom'
 import { ChakraProvider } from '@chakra-ui/react'
+import packageJson from '../package.json'
+
 import theme from './theme'
 import { PlayerProvider } from './context/PlayerContext'
 
@@ -15,7 +17,7 @@ import Game from './components/Game'
 const App = () => {
   return (
     <ChakraProvider theme={theme}>
-      <Router>
+      <Router basename={packageJson.homepage}>
         <PlayerProvider>
           <Routes>
             <Route path="/" element={<Home />} />

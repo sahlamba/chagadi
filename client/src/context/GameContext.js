@@ -96,7 +96,9 @@ export const GameProvider = ({ children }) => {
   // ── Socket listeners ──
 
   useEffect(() => {
-    const s = io(API_BASE_URL)
+    const s = io('/', {
+      path: `${API_BASE_URL}/socket.io`
+    })
     s.on('connect', () => setSocket(s))
     s.on('disconnect', () => setSocket(null))
     s.on('game_updated', ({ gameState }) => setGame(gameState))

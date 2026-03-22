@@ -1,1 +1,3 @@
-export const API_BASE_URL = `${window.location.protocol}//${window.location.hostname}:8080`
+import packageJson from '../package.json'
+
+export const API_BASE_URL = packageJson.homepage
