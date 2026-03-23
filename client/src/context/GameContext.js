@@ -25,7 +25,7 @@ export const GameProvider = ({ children }) => {
   const getAndSetGame = async (gameCode) => {
     setLoadingGame({ status: true, message: 'Loading game' })
     try {
-      setGame(await getGameById(gameCode))
+      setGame(await getGameById(gameCode, player?.id))
     } catch (error) {
       notify(toast, { title: error, status: 'error' })
     }

@@ -56,7 +56,12 @@ export default class Game {
 
   static from(json) {
     const game = Object.create(Game.prototype)
-    return Object.assign(game, json)
+    Object.assign(game, json)
+    // Reconstitute PlayerState instances so getters (totalScore) work
+    for (const pid of Object.keys(game.players || {})) {
+      game.players[pid] = PlayerState.from(game.players[pid])
+    }
+    return game
   }
 
   // ── State machine ──

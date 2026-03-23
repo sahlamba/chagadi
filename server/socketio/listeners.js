@@ -7,7 +7,7 @@ const errorToJson = (e) => ({ name: e.name, message: e.message })
 // Each player sees: own hand, other players' card counts (not cards),
 // trump only if revealed, ally identity only if on leader team or game over.
 
-const filterGameForPlayer = (gameCode, playerId) => {
+export const filterGameForPlayer = (gameCode, playerId) => {
   const game = Chagadi.getGame(gameCode)
   if (!game) return null
 
