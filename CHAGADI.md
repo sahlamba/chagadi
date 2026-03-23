@@ -286,6 +286,13 @@ pm2 save
 sudo nginx -t && sudo systemctl reload nginx
 ```
 
+### Update deployment (on cloud server)
+```bash
+git pull origin cloud
+npm run setup
+pm2 restart chagadi
+```
+
 ### Prerequisites
 - Node 20+ required (uses optional chaining, nullish coalescing, ES modules)
 - If using nvm, reinstall pm2 under nvm's Node: `nvm use 20 && npm install -g pm2`
