@@ -18,8 +18,10 @@ export const createGame = async (player, settings) => {
   return game
 }
 
-export const getGameById = async (gameCode) => {
-  const res = await fetch(`${API_BASE_URL}/api/game?code=${gameCode}`, {
+export const getGameById = async (gameCode, playerId) => {
+  const params = new URLSearchParams({ code: gameCode })
+  if (playerId) params.set('playerId', playerId)
+  const res = await fetch(`${API_BASE_URL}/api/game?${params}`, {
     method: 'GET',
     headers,
   })

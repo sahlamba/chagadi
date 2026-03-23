@@ -1,5 +1,32 @@
 # Chagadi — Implementation Plan
 
+## Current Status
+
+### Completed
+- **Server engine** — full game logic, state machine, 54 tests passing
+- **Socket events** — per-player state filtering (hands, trump, teams hidden appropriately)
+- **Client UI phases 8a–8d** — all game phases have UI:
+  - 8a: Foundation (GameContext, GameContent, Header, CreateGame)
+  - 8b: Bidding UI (bid input, place/cancel, bid list, admin finalize)
+  - 8c: Leader phases (trump selection, ally selection with card grid)
+  - 8d: Playing + Game Over (trick area, turn info, trump reveal, scores, team reveal, trick detail modal)
+- **Table layout** — opponent seats with avatars, center content area, player hand
+- **Player enhancements** — unique avatar colors, leader star, tricks/score on seats, team badge, named waiting messages
+- **Dark theme** — gray.900 bg, gold/yellow accents throughout
+- **Favicon** — custom icons, apple-touch-icon, manifest
+- **Deployment** — live at `cloud.sahillamba.com/chagadi`, pm2 + nginx
+
+### Branches
+- `chagadi` — main dev
+- `cloud` — deployment config on top of chagadi
+
+### Next Steps
+1. Playtest the full game flow with real players
+2. Fix bugs found during playtesting
+3. Decide on E2E testing approach (see ideas below)
+
+---
+
 ## Game Overview
 
 6-player trick-taking card game. A bidding winner (leader) secretly picks 2 allies → 3v3 teams. 8 turns of trick play. Leader's team must score ≥ their bid to win.
@@ -263,3 +290,14 @@ sudo nginx -t && sudo systemctl reload nginx
 - Node 20+ required (uses optional chaining, nullish coalescing, ES modules)
 - If using nvm, reinstall pm2 under nvm's Node: `nvm use 20 && npm install -g pm2`
 - System-installed pm2 (under old Node) won't work — it runs with the system Node version
+
+## E2E Testing Ideas
+
+### Option 1: Server game simulation
+Single Node test that plays a full game through the Game model — create game, 6 players, bid → trump → allies → 8 turns → game over. Asserts state at each phase. No network, no browser. Extends existing 54-unit test suite.
+
+### Option 2: Socket-level simulation (recommended)
+Spin up server, connect 6 socket.io clients, play a full game via events. Verifies per-player filtering (trump hidden, team hidden, hand hidden), turn order, error handling. Catches the most likely real bugs without browser overhead.
+
+### Option 3: Browser automation (Playwright)
+6 browser tabs, full UI interaction. Most realistic but slowest, most brittle. Best saved for after the game is stable.

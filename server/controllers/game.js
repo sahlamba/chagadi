@@ -1,4 +1,5 @@
 import Chagadi from '../chagadi/index.js'
+import { filterGameForPlayer } from '../socketio/listeners.js'
 import {
   validateGameCode,
   validatePlayer,
@@ -7,9 +8,9 @@ import {
 
 export const getGame = (req, res, next) => {
   try {
-    const { code } = req.query
+    const { code, playerId } = req.query
     validateGameCode(code)
-    const game = Chagadi.getGame(code)
+    const game = playerId ? filterGameForPlayer(code, playerId) : Chagadi.getGame(code)
     res.json({ ok: true, game })
   } catch (error) {
     console.error(error)
