@@ -68,9 +68,9 @@ export default class Chagadi {
     this.db.updateGame(game)
   }
 
-  static selectAllies(gameCode, player, card1, card2) {
+  static selectAllies(gameCode, player, ...allyCards) {
     const game = this.getGameOrThrow(gameCode)
-    game.selectAllies(player, card1, card2)
+    game.selectAllies(player, ...allyCards)
     this.db.updateGame(game)
   }
 

@@ -34,6 +34,11 @@ export const getRank = (name) => {
   return rank
 }
 
+export const cardMeta = {
+  suits: Object.fromEntries(Object.entries(Suit).map(([k, v]) => [k, { symbol: v.symbol, order: Object.keys(Suit).indexOf(k) }])),
+  ranks: Object.fromEntries(Object.entries(Rank).map(([k, v]) => [k, { symbol: v.symbol, trumpOrder: v.trumpOrder, points: v.points }])),
+}
+
 export default class Card {
   constructor(suit, rank, visible = true) {
     this.suit = suit.name   // store name string for serialization

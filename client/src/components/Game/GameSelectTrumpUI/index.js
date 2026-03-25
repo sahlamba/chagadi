@@ -4,12 +4,10 @@ import { Button, HStack, Text, VStack } from '@chakra-ui/react'
 import { useGameContext } from '../../../context/GameContext'
 import TableLayout from '../TableLayout'
 
-const suits = [
-  { name: 'CLUBS', symbol: '♣', color: 'gray.100' },
-  { name: 'HEARTS', symbol: '♥', color: 'red.400' },
-  { name: 'SPADES', symbol: '♠', color: 'gray.100' },
-  { name: 'DIAMONDS', symbol: '♦', color: 'red.400' },
-]
+import { suitSymbol } from '../CardDisplay'
+
+const suitColors = { HEARTS: 'red.400', DIAMONDS: 'red.400', CLUBS: 'gray.100', SPADES: 'gray.100' }
+const suitNames = ['CLUBS', 'HEARTS', 'SPADES', 'DIAMONDS']
 
 const TrumpControls = () => {
   const { isLeader, selectTrump, actionInProgress, game } = useGameContext()
@@ -22,15 +20,15 @@ const TrumpControls = () => {
     <VStack spacing={3}>
       <Text fontWeight="bold" color="yellow.300">Pick a trump suit</Text>
       <HStack spacing={3}>
-        {suits.map(s => (
+        {suitNames.map(name => (
           <Button
-            key={s.name} size="lg" fontSize="2rem"
-            variant="outline" borderColor="gray.500" color={s.color}
+            key={name} size="lg" fontSize="2rem"
+            variant="outline" borderColor="gray.500" color={suitColors[name]}
             _hover={{ bg: 'gray.700', borderColor: 'yellow.400' }}
             isLoading={actionInProgress}
-            onClick={() => selectTrump(s.name)}
+            onClick={() => selectTrump(name)}
           >
-            {s.symbol}
+            {suitSymbol(name, game?.cardMeta)}
           </Button>
         ))}
       </HStack>

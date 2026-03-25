@@ -1,11 +1,13 @@
 import React from 'react'
 import { Flex, Wrap, WrapItem, Text } from '@chakra-ui/react'
 import CardDisplay, { sortCards } from './CardDisplay'
+import { useGameContext } from '../../context/GameContext'
 
 const HandDisplay = ({ cards, onCardClick, selectedCard, label }) => {
+  const { game } = useGameContext()
   if (!cards || !cards.length) return null
 
-  const sorted = sortCards(cards)
+  const sorted = sortCards(cards, game?.cardMeta)
 
   return (
     <Flex direction="column" align="center">

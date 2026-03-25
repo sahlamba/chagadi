@@ -72,7 +72,7 @@ export const GameProvider = ({ children }) => {
   const cancelBid = () => emit('cancel_bid', { player }, { setLoading: setActionInProgress })
   const finalizeBidding = (leaderId) => emit('finalize_bidding', { leaderId }, { setLoading: setActionInProgress })
   const selectTrump = (suitName) => emit('select_trump', { player, suitName }, { setLoading: setActionInProgress })
-  const selectAllies = (card1, card2) => emit('select_allies', { player, card1, card2 }, { setLoading: setActionInProgress })
+  const selectAllies = (...cards) => emit('select_allies', { player, allyCards: cards }, { setLoading: setActionInProgress })
   const playCard = (card) => emit('play_card', { player, card }, { setLoading: setActionInProgress })
   const requestTrumpReveal = () => emit('request_trump_reveal', { player }, { setLoading: setActionInProgress })
 

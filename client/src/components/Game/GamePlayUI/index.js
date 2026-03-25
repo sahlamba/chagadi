@@ -6,9 +6,7 @@ import {
 
 import { useGameContext } from '../../../context/GameContext'
 import TableLayout from '../TableLayout'
-import CardDisplay from '../CardDisplay'
-
-const suitSymbols = { CLUBS: '♣', HEARTS: '♥', SPADES: '♠', DIAMONDS: '♦' }
+import CardDisplay, { suitSymbol } from '../CardDisplay'
 
 const playerName = (game, pid) => game.players[pid]?.player?.name || pid
 
@@ -20,7 +18,7 @@ const TrickArea = () => {
   return (
     <VStack spacing={2}>
       {turn.leadSuit && (
-        <Text fontSize="xs" color="gray.400">Lead: {suitSymbols[turn.leadSuit]}</Text>
+        <Text fontSize="xs" color="gray.400">Lead: {suitSymbol(turn.leadSuit, game?.cardMeta)}</Text>
       )}
       <HStack spacing={2} wrap="wrap" justify="center">
         {turn.playedCards.map(({ playerId, card }, i) => (
@@ -63,7 +61,7 @@ const TurnInfo = () => {
       </Text>
       {game.trumpSuit && (
         <Badge colorScheme={game.trumpRevealed ? 'yellow' : 'gray'}>
-          Trump: {game.trumpRevealed ? suitSymbols[game.trumpSuit] : '?'}
+          Trump: {game.trumpRevealed ? suitSymbol(game.trumpSuit, game?.cardMeta) : '?'}
         </Badge>
       )}
       {!game.trumpRevealed && isMyTurn() && turn.leadSuit && (
@@ -71,18 +69,18 @@ const TurnInfo = () => {
           Reveal Trump
         </Button>
       )}
-      <Text fontSize="xs" color="gray.500">Turn {(game.turnNumber || 0) + 1} / 8</Text>
+      <Text fontSize="xs" color="gray.500">Turn {(game.turnNumber || 0) + 1} / {game.settings?.maxPlayers === 4 ? 13 : 8}</Text>
     </VStack>
   )
 }
 
-const TrickModal = ({ tricks, playerName: name, isOpen, onClose }) => (
+const TrickModal = ({ tricks, title, isOpen, onClose }) => (
   <Modal isOpen={isOpen} onClose={onClose} size="sm" isCentered>
     <ModalOverlay />
     <ModalContent bg="gray.800" color="white">
-      <ModalHeader fontSize="sm">{name}'s Tricks</ModalHeader>
+      <ModalHeader fontSize="sm">{title}</ModalHeader>
       <ModalCloseButton color="red.300" />
-      <ModalBody pb={4}>
+      <ModalBody pb={4} maxH="60vh" overflowY="auto">
         {tricks.map((t, i) => (
           <VStack key={i} spacing={1} mb={3} align="start">
             <Text fontSize="xs" color="gray.400">Trick {i + 1} — {t.points} pts</Text>
@@ -111,7 +109,7 @@ const MyTricksButton = () => {
       <Button size="xs" variant="outline" colorScheme="yellow" onClick={onOpen}>
         My tricks: {tricks.length} ({score} pts)
       </Button>
-      <TrickModal tricks={tricks} playerName="You" isOpen={isOpen} onClose={onClose} />
+      <TrickModal tricks={tricks} title="Your Tricks" isOpen={isOpen} onClose={onClose} />
     </>
   )
 }
@@ -163,7 +161,7 @@ const GameOverContent = () => {
         </VStack>
       </HStack>
       {game.trumpSuit && (
-        <Text fontSize="xs" color="gray.400">Trump: {suitSymbols[game.trumpSuit]}</Text>
+        <Text fontSize="xs" color="gray.400">Trump: {suitSymbol(game.trumpSuit, game?.cardMeta)}</Text>
       )}
       <VStack spacing={1} mt={2}>
         {Object.values(game.players).map(ps => {
@@ -186,7 +184,7 @@ const GameOverContent = () => {
       {modalPlayer && (
         <TrickModal
           tricks={modalPlayer.wonTricks || []}
-          playerName={modalPlayer.player.name}
+          title={`${modalPlayer.player.name}'s Tricks`}
           isOpen={isOpen}
           onClose={onClose}
         />

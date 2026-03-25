@@ -51,7 +51,7 @@ const TableLayout = ({ children, onCardClick, selectedCard, hideHand }) => {
       {/* You */}
       {!hideHand && (
         <Flex direction="column" align="center" w="100%">
-          <HandDisplay cards={sortCards(getMyHand())} onCardClick={onCardClick} selectedCard={selectedCard} />
+          <HandDisplay cards={sortCards(getMyHand(), game?.cardMeta)} onCardClick={onCardClick} selectedCard={selectedCard} />
         </Flex>
       )}
     </Flex>

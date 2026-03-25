@@ -16,10 +16,11 @@ import { AddIcon } from '@chakra-ui/icons'
 
 const CreateGameInput = ({ onSubmit, isCreatingGame }) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
+  const [maxPlayers, setMaxPlayers] = React.useState(6)
 
   const submit = (evt) => {
     evt.preventDefault()
-    onSubmit({ gameSettings: { maxPlayers: 6 } })
+    onSubmit({ gameSettings: { maxPlayers } })
   }
 
   return (
@@ -38,7 +39,17 @@ const CreateGameInput = ({ onSubmit, isCreatingGame }) => {
           <ModalCloseButton color="red.300" />
           <form onSubmit={submit}>
             <ModalBody>
-              <Text>6 players required. Cards will be dealt after all players are ready.</Text>
+              <Stack spacing={3}>
+                <Text>Select number of players:</Text>
+                <Stack direction="row" spacing={2}>
+                  {[4, 6].map((n) => (
+                    <Button key={n} size="sm" variant={maxPlayers === n ? 'solid' : 'outline'} colorScheme="yellow" onClick={() => setMaxPlayers(n)}>{n} Players</Button>
+                  ))}
+                </Stack>
+                <Text fontSize="sm" color="gray.400">
+                  {maxPlayers === 4 ? '52 cards, 13 each, 2v2 teams' : '48 cards, 8 each, 3v3 teams'}
+                </Text>
+              </Stack>
             </ModalBody>
             <ModalFooter>
               <Stack direction="row" spacing={2}>

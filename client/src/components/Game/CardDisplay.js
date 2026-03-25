@@ -1,29 +1,33 @@
 import React from 'react'
 import { Box, Text } from '@chakra-ui/react'
+import { useGameContext } from '../../context/GameContext'
 
-const suitColor = { '♥': 'red.500', '♦': 'red.500', '♣': 'gray.800', '♠': 'gray.800' }
+const redSuits = new Set(['HEARTS', 'DIAMONDS'])
 
-const suitSymbols = { HEARTS: '♥', DIAMONDS: '♦', CLUBS: '♣', SPADES: '♠' }
-const rankSymbols = {
-  ACE: 'A', THREE: '3', FOUR: '4', FIVE: '5', SIX: '6', SEVEN: '7',
-  EIGHT: '8', NINE: '9', TEN: '10', JACK: 'J', QUEEN: 'Q', KING: 'K',
-}
-
-// Sort order: suit groups then by trump order (strength)
-const suitOrder = { SPADES: 0, HEARTS: 1, CLUBS: 2, DIAMONDS: 3 }
-const trumpOrder = { ACE: 1, KING: 2, QUEEN: 3, JACK: 4, TEN: 5, NINE: 6, EIGHT: 7, SEVEN: 8, SIX: 9, FIVE: 10, FOUR: 11, THREE: 12 }
-
-export const sortCards = (cards) => {
+export const sortCards = (cards, cardMeta) => {
+  if (!cardMeta) return cards
   const visible = cards.filter(c => c.visible !== false)
   const hidden = cards.filter(c => c.visible === false)
-  const sorted = [...visible].sort((a, b) => (suitOrder[a.suit] ?? 9) - (suitOrder[b.suit] ?? 9) || (trumpOrder[a.rank] ?? 99) - (trumpOrder[b.rank] ?? 99))
+  const sorted = [...visible].sort((a, b) =>
+    (cardMeta.suits[a.suit]?.order ?? 9) - (cardMeta.suits[b.suit]?.order ?? 9) ||
+    (cardMeta.ranks[a.rank]?.trumpOrder ?? 99) - (cardMeta.ranks[b.rank]?.trumpOrder ?? 99)
+  )
   return [...sorted, ...hidden]
 }
 
-export const cardSymbol = (card) => `${rankSymbols[card.rank] || '?'}${suitSymbols[card.suit] || '?'}`
-export const cardColor = (card) => suitColor[suitSymbols[card.suit]] || 'gray.800'
+export const cardSymbol = (card, cardMeta) => {
+  const r = cardMeta?.ranks[card.rank]?.symbol || '?'
+  const s = cardMeta?.suits[card.suit]?.symbol || '?'
+  return `${r}${s}`
+}
+
+export const cardColor = (card) => redSuits.has(card.suit) ? 'red.500' : 'gray.800'
+
+export const suitSymbol = (suit, cardMeta) => cardMeta?.suits[suit]?.symbol || '?'
 
 const CardDisplay = ({ card, onClick, isSelected, isDisabled, size = 'md' }) => {
+  const { game } = useGameContext()
+  const meta = game?.cardMeta
   const hidden = !card.visible
   const sizes = { sm: { w: '40px', h: '56px', fs: '0.7rem' }, md: { w: '52px', h: '72px', fs: '0.9rem' }, lg: { w: '64px', h: '88px', fs: '1.1rem' } }
   const s = sizes[size] || sizes.md
@@ -50,7 +54,7 @@ const CardDisplay = ({ card, onClick, isSelected, isDisabled, size = 'md' }) => 
         <Text fontSize={s.fs} color="white" fontWeight="bold">?</Text>
       ) : (
         <Text fontSize={s.fs} fontWeight="bold" color={cardColor(card)}>
-          {cardSymbol(card)}
+          {cardSymbol(card, meta)}
         </Text>
       )}
     </Box>

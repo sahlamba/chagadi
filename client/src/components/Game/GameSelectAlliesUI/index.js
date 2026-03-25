@@ -5,19 +5,21 @@ import { useGameContext } from '../../../context/GameContext'
 import TableLayout from '../TableLayout'
 import CardDisplay from '../CardDisplay'
 import HandDisplay from '../HandDisplay'
-import { sortCards } from '../CardDisplay'
+import { sortCards, suitSymbol } from '../CardDisplay'
 
 const suits = ['SPADES', 'HEARTS', 'CLUBS', 'DIAMONDS']
-const ranks = ['ACE', 'KING', 'QUEEN', 'JACK', 'TEN', 'NINE', 'EIGHT', 'SEVEN', 'SIX', 'FIVE', 'FOUR', 'THREE']
-const suitSymbols = { SPADES: '♠', HEARTS: '♥', CLUBS: '♣', DIAMONDS: '♦' }
+const ranks = ['ACE', 'KING', 'QUEEN', 'JACK', 'TEN', 'NINE', 'EIGHT', 'SEVEN', 'SIX', 'FIVE', 'FOUR', 'THREE', 'TWO']
 const suitColors = { HEARTS: 'red.400', DIAMONDS: 'red.400', CLUBS: 'gray.100', SPADES: 'gray.100' }
 
-const allCards = suits.flatMap(suit => ranks.map(rank => ({ suit, rank, visible: true })))
+const allCardsForMode = (maxPlayers) => {
+  const r = maxPlayers === 4 ? ranks : ranks.filter(r => r !== 'TWO')
+  return suits.flatMap(suit => r.map(rank => ({ suit, rank, visible: true })))
+}
 
-const ConfirmButton = ({ picks, actionInProgress, onConfirm }) => (
-  picks.length === 2 ? (
+const ConfirmButton = ({ picks, allyCount, actionInProgress, onConfirm }) => (
+  picks.length === allyCount ? (
     <Button colorScheme="green" size="sm" isLoading={actionInProgress} onClick={onConfirm}>
-      Confirm Allies
+      Confirm {allyCount === 1 ? 'Ally' : 'Allies'}
     </Button>
   ) : null
 )
@@ -25,9 +27,11 @@ const ConfirmButton = ({ picks, actionInProgress, onConfirm }) => (
 const AllyControls = () => {
   const { game, getMyHand, isLeader, selectAllies, actionInProgress } = useGameContext()
   const [picks, setPicks] = useState([])
+  const allyCount = game?.settings?.maxPlayers === 4 ? 1 : 2
+  const allCards = allCardsForMode(game?.settings?.maxPlayers)
 
   if (!isLeader()) {
-    return <Text color="gray.400">Waiting for <Text as="span" fontWeight="bold" color="yellow.300">{game.players[game.leaderId]?.player?.name || 'the leader'}</Text> to call allies...</Text>
+    return <Text color="gray.400">Waiting for <Text as="span" fontWeight="bold" color="yellow.300">{game.players[game.leaderId]?.player?.name || 'the leader'}</Text> to call {allyCount === 1 ? 'an ally' : 'allies'}...</Text>
   }
 
   const myCards = getMyHand()
@@ -38,30 +42,30 @@ const AllyControls = () => {
     if (myCardIds.has(`${card.rank}_${card.suit}`)) return
     if (isSelected(card)) {
       setPicks(picks.filter(p => !(p.suit === card.suit && p.rank === card.rank)))
-    } else if (picks.length < 2) {
+    } else if (picks.length < allyCount) {
       setPicks([...picks, { suit: card.suit, rank: card.rank }])
     }
   }
 
-  const onConfirm = () => selectAllies(picks[0], picks[1])
+  const onConfirm = () => selectAllies(...picks)
 
   return (
     <VStack spacing={3} w="100%">
-      <HandDisplay cards={sortCards(myCards)} label="Your Hand" />
+      <HandDisplay cards={sortCards(myCards, game?.cardMeta)} label="Your Hand" />
 
       {game?.trumpSuit && (
         <Text fontSize="xs" color="gray.400">
-          Trump: <Text as="span" fontSize="md" color={suitColors[game.trumpSuit]}>{suitSymbols[game.trumpSuit]}</Text>
+          Trump: <Text as="span" fontSize="md" color={suitColors[game.trumpSuit]}>{suitSymbol(game.trumpSuit, game?.cardMeta)}</Text>
         </Text>
       )}
 
-      <Text fontWeight="bold" color="yellow.300" fontSize="sm">Tap 2 cards to call as allies</Text>
+      <Text fontWeight="bold" color="yellow.300" fontSize="sm">Tap {allyCount} card{allyCount > 1 ? 's' : ''} to call as {allyCount === 1 ? 'ally' : 'allies'}</Text>
 
-      <ConfirmButton picks={picks} actionInProgress={actionInProgress} onConfirm={onConfirm} />
+      <ConfirmButton picks={picks} allyCount={allyCount} actionInProgress={actionInProgress} onConfirm={onConfirm} />
 
       {suits.map(suit => (
         <Flex key={suit} align="center" gap={2} bg="gray.800" px={2} py={1} borderRadius="md" borderWidth="1px" borderColor="gray.700">
-          <Text fontSize="1.2rem" color={suitColors[suit]} minW="16px">{suitSymbols[suit]}</Text>
+          <Text fontSize="1.2rem" color={suitColors[suit]} minW="16px">{suitSymbol(suit, game?.cardMeta)}</Text>
           <Wrap spacing={1}>
             {allCards.filter(c => c.suit === suit).map(card => (
               <WrapItem key={`${card.rank}_${card.suit}`}>
@@ -77,7 +81,7 @@ const AllyControls = () => {
         </Flex>
       ))}
 
-      <ConfirmButton picks={picks} actionInProgress={actionInProgress} onConfirm={onConfirm} />
+      <ConfirmButton picks={picks} allyCount={allyCount} actionInProgress={actionInProgress} onConfirm={onConfirm} />
     </VStack>
   )
 }
