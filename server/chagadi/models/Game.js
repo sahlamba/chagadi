@@ -6,12 +6,15 @@ import PlayerState from './PlayerState.js'
 const GAME_CODE_LENGTH = 6
 const nanoid = customAlphabet('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', GAME_CODE_LENGTH)
 
-const PLAYER_COUNT = 6
-const BIDDING_CARDS = 5
-const HIDDEN_CARDS = 3
-const TOTAL_TURNS = 8
 const MIN_BID = 280
 const MAX_BID = 508
+
+// Config per player count
+const MODE = {
+  4: { playerCount: 4, deckFilter: null, biddingCards: 8, hiddenCards: 5, totalTurns: 13, allyCount: 1 },
+  6: { playerCount: 6, deckFilter: 'TWO', biddingCards: 5, hiddenCards: 3, totalTurns: 8, allyCount: 2 },
+}
+const getMode = (maxPlayers) => MODE[maxPlayers] || MODE[6]
 
 export const GameState = {
   CREATED: 'CREATED',
@@ -36,9 +39,10 @@ const transitions = {
 
 export default class Game {
   constructor(admin, settings) {
+    const mode = getMode(settings?.maxPlayers)
     this.code = nanoid()
     this.admin = admin
-    this.settings = { ...settings, maxPlayers: PLAYER_COUNT }
+    this.settings = { ...settings, maxPlayers: mode.playerCount }
     this.state = GameState.CREATED
     this.players = {}       // Map<playerId, PlayerState>
     this.winnerId = null
@@ -48,7 +52,7 @@ export default class Game {
     this.leaderId = null
     this.trumpSuit = null
     this.trumpRevealed = false
-    this.leaderTeam = []    // [playerId, playerId, playerId]
+    this.leaderTeam = []
     this.turnNumber = 0
     this.currentTurn = null // { playOrder, playedCards, leadSuit, trumpRevealedBy }
     this.lastTurnResult = null // { winnerId, trickPoints, leaderTeamScore, enemyTeamScore }
@@ -63,6 +67,8 @@ export default class Game {
     }
     return game
   }
+
+  get mode() { return getMode(this.settings?.maxPlayers) }
 
   // ── State machine ──
 
@@ -83,8 +89,9 @@ export default class Game {
 
   addPlayer(player) {
     this.requireState(GameState.CREATED)
-    if (Object.keys(this.players).length >= PLAYER_COUNT) {
-      throw new Error(`Max players (${PLAYER_COUNT}) reached`)
+    const { playerCount } = this.mode
+    if (Object.keys(this.players).length >= playerCount) {
+      throw new Error(`Max players (${playerCount}) reached`)
     }
     this.players[player.id] = new PlayerState(player)
   }
@@ -109,7 +116,7 @@ export default class Game {
   readyToStart() {
     return (
       this.state === GameState.CREATED &&
-      this.joinedPlayerCount() === PLAYER_COUNT &&
+      this.joinedPlayerCount() === this.mode.playerCount &&
       Object.values(this.players).every((ps) => ps.isReady)
     )
   }
@@ -121,15 +128,16 @@ export default class Game {
   // ── Deal ──
 
   dealCards() {
-    const deck = Deck.standard()
-      .filter((c) => c.rank !== 'TWO') // Remove 2's → 48 cards
-      .shuffle()
+    const { playerCount, deckFilter, biddingCards, hiddenCards } = this.mode
+    let deck = Deck.standard()
+    if (deckFilter) deck = deck.filter((c) => c.rank !== deckFilter)
+    deck = deck.shuffle()
 
-    const biddingHands = deck.deal(PLAYER_COUNT, BIDDING_CARDS)
-    const hiddenHands = deck.deal(PLAYER_COUNT, HIDDEN_CARDS)
+    const biddingHands = deck.deal(playerCount, biddingCards)
+    const hiddenHands = deck.deal(playerCount, hiddenCards)
 
     // Shuffle assignment order
-    const indices = Array.from({ length: PLAYER_COUNT }, (_, i) => i)
+    const indices = Array.from({ length: playerCount }, (_, i) => i)
     for (let i = indices.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1))
       ;[indices[i], indices[j]] = [indices[j], indices[i]]
@@ -140,10 +148,8 @@ export default class Game {
       const ps = PlayerState.from(this.players[pid])
       const hand = new Hand()
 
-      // 5 visible cards
       biddingHands[indices[i]].cards.forEach((c) => hand.addCard(c))
 
-      // 3 hidden cards
       hiddenHands[indices[i]].cards.forEach((c) => {
         c.visible = false
         hand.addCard(c)
@@ -220,28 +226,35 @@ export default class Game {
 
   // ── Ally selection ──
 
-  selectAllies(player, card1, card2) {
+  selectAllies(player, ...allyCards) {
     this.requireState(GameState.SELECTING_ALLIES)
     if (player.id !== this.leaderId) {
       throw new Error('Only the leader can select allies')
     }
 
+    const { allyCount } = this.mode
+    if (allyCards.length !== allyCount) {
+      throw new Error(`Must select exactly ${allyCount} ally card(s)`)
+    }
+
     const leaderHand = this.players[this.leaderId].hand
-    if (this.handHasCard(leaderHand, card1) || this.handHasCard(leaderHand, card2)) {
-      throw new Error('Ally cards must not be from your own hand')
+    const allyIds = []
+    for (const card of allyCards) {
+      if (this.handHasCard(leaderHand, card)) {
+        throw new Error('Ally cards must not be from your own hand')
+      }
+      const holderId = this.findCardHolder(card, this.leaderId)
+      if (!holderId) {
+        throw new Error('Ally cards must exist in another player\'s hand')
+      }
+      allyIds.push(holderId)
     }
 
-    const ally1Id = this.findCardHolder(card1, this.leaderId)
-    const ally2Id = this.findCardHolder(card2, this.leaderId)
-    if (!ally1Id || !ally2Id) {
-      throw new Error('Ally cards must exist in another player\'s hand')
-    }
-
-    this.leaderTeam = [this.leaderId, ally1Id, ally2Id]
+    this.leaderTeam = [this.leaderId, ...allyIds]
 
     // Assign teams
     for (const pid of Object.keys(this.players)) {
-      this.players[pid].team = this.leaderTeam.includes(pid) ? 'leader' : 'enemy' // TODO: Use 'opposition'
+      this.players[pid].team = this.leaderTeam.includes(pid) ? 'leader' : 'enemy'
     }
 
     this.startNewTurn(this.leaderId)
@@ -286,7 +299,7 @@ export default class Game {
     this.removeCardFromHand(ps.hand, card)
 
     // If turn complete, resolve
-    if (turn.playedCards.length === PLAYER_COUNT) {
+    if (turn.playedCards.length === this.mode.playerCount) {
       return this.resolveTurn()
     }
     return null
@@ -344,7 +357,7 @@ export default class Game {
 
     this.lastTurnResult = result
 
-    if (this.turnNumber >= TOTAL_TURNS) {
+    if (this.turnNumber >= this.mode.totalTurns) {
       this.state = GameState.OVER
       // Leader team wins if score >= bid
       const leaderWins = this.leaderTeamScore >= this.getHighestBid()
@@ -399,9 +412,10 @@ export default class Game {
   startNewTurn(leaderId) {
     const playerIds = Object.keys(this.players)
     const leaderIdx = playerIds.indexOf(leaderId)
+    const { playerCount } = this.mode
     const playOrder = []
-    for (let i = 0; i < PLAYER_COUNT; i++) {
-      playOrder.push(playerIds[(leaderIdx + i) % PLAYER_COUNT])
+    for (let i = 0; i < playerCount; i++) {
+      playOrder.push(playerIds[(leaderIdx + i) % playerCount])
     }
     this.currentTurn = {
       playOrder,
