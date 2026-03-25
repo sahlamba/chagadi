@@ -80,7 +80,7 @@ const TrickModal = ({ tricks, title, isOpen, onClose }) => (
     <ModalContent bg="gray.800" color="white">
       <ModalHeader fontSize="sm">{title}</ModalHeader>
       <ModalCloseButton color="red.300" />
-      <ModalBody pb={4}>
+      <ModalBody pb={4} maxH="60vh" overflowY="auto">
         {tricks.map((t, i) => (
           <VStack key={i} spacing={1} mb={3} align="start">
             <Text fontSize="xs" color="gray.400">Trick {i + 1} — {t.points} pts</Text>
