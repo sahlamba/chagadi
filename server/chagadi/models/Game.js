@@ -1,5 +1,5 @@
 import { customAlphabet } from 'nanoid'
-import Card, { Rank, Suit, getRank } from './Card.js'
+import Card, { Rank, Suit, getRank, cardMeta } from './Card.js'
 import Deck, { Hand } from './Deck.js'
 import PlayerState from './PlayerState.js'
 
@@ -43,6 +43,7 @@ export default class Game {
     this.code = nanoid()
     this.admin = admin
     this.settings = { ...settings, maxPlayers: mode.playerCount }
+    this.cardMeta = cardMeta
     this.state = GameState.CREATED
     this.players = {}       // Map<playerId, PlayerState>
     this.winnerId = null

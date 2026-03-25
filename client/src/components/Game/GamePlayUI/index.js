@@ -6,9 +6,7 @@ import {
 
 import { useGameContext } from '../../../context/GameContext'
 import TableLayout from '../TableLayout'
-import CardDisplay from '../CardDisplay'
-
-const suitSymbols = { CLUBS: '♣', HEARTS: '♥', SPADES: '♠', DIAMONDS: '♦' }
+import CardDisplay, { suitSymbol } from '../CardDisplay'
 
 const playerName = (game, pid) => game.players[pid]?.player?.name || pid
 
@@ -20,7 +18,7 @@ const TrickArea = () => {
   return (
     <VStack spacing={2}>
       {turn.leadSuit && (
-        <Text fontSize="xs" color="gray.400">Lead: {suitSymbols[turn.leadSuit]}</Text>
+        <Text fontSize="xs" color="gray.400">Lead: {suitSymbol(turn.leadSuit, game?.cardMeta)}</Text>
       )}
       <HStack spacing={2} wrap="wrap" justify="center">
         {turn.playedCards.map(({ playerId, card }, i) => (
@@ -63,7 +61,7 @@ const TurnInfo = () => {
       </Text>
       {game.trumpSuit && (
         <Badge colorScheme={game.trumpRevealed ? 'yellow' : 'gray'}>
-          Trump: {game.trumpRevealed ? suitSymbols[game.trumpSuit] : '?'}
+          Trump: {game.trumpRevealed ? suitSymbol(game.trumpSuit, game?.cardMeta) : '?'}
         </Badge>
       )}
       {!game.trumpRevealed && isMyTurn() && turn.leadSuit && (
@@ -163,7 +161,7 @@ const GameOverContent = () => {
         </VStack>
       </HStack>
       {game.trumpSuit && (
-        <Text fontSize="xs" color="gray.400">Trump: {suitSymbols[game.trumpSuit]}</Text>
+        <Text fontSize="xs" color="gray.400">Trump: {suitSymbol(game.trumpSuit, game?.cardMeta)}</Text>
       )}
       <VStack spacing={1} mt={2}>
         {Object.values(game.players).map(ps => {

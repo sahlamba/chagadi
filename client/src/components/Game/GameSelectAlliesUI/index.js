@@ -5,11 +5,10 @@ import { useGameContext } from '../../../context/GameContext'
 import TableLayout from '../TableLayout'
 import CardDisplay from '../CardDisplay'
 import HandDisplay from '../HandDisplay'
-import { sortCards } from '../CardDisplay'
+import { sortCards, suitSymbol } from '../CardDisplay'
 
 const suits = ['SPADES', 'HEARTS', 'CLUBS', 'DIAMONDS']
 const ranks = ['ACE', 'KING', 'QUEEN', 'JACK', 'TEN', 'NINE', 'EIGHT', 'SEVEN', 'SIX', 'FIVE', 'FOUR', 'THREE', 'TWO']
-const suitSymbols = { SPADES: '♠', HEARTS: '♥', CLUBS: '♣', DIAMONDS: '♦' }
 const suitColors = { HEARTS: 'red.400', DIAMONDS: 'red.400', CLUBS: 'gray.100', SPADES: 'gray.100' }
 
 const allCardsForMode = (maxPlayers) => {
@@ -52,11 +51,11 @@ const AllyControls = () => {
 
   return (
     <VStack spacing={3} w="100%">
-      <HandDisplay cards={sortCards(myCards)} label="Your Hand" />
+      <HandDisplay cards={sortCards(myCards, game?.cardMeta)} label="Your Hand" />
 
       {game?.trumpSuit && (
         <Text fontSize="xs" color="gray.400">
-          Trump: <Text as="span" fontSize="md" color={suitColors[game.trumpSuit]}>{suitSymbols[game.trumpSuit]}</Text>
+          Trump: <Text as="span" fontSize="md" color={suitColors[game.trumpSuit]}>{suitSymbol(game.trumpSuit, game?.cardMeta)}</Text>
         </Text>
       )}
 
@@ -66,7 +65,7 @@ const AllyControls = () => {
 
       {suits.map(suit => (
         <Flex key={suit} align="center" gap={2} bg="gray.800" px={2} py={1} borderRadius="md" borderWidth="1px" borderColor="gray.700">
-          <Text fontSize="1.2rem" color={suitColors[suit]} minW="16px">{suitSymbols[suit]}</Text>
+          <Text fontSize="1.2rem" color={suitColors[suit]} minW="16px">{suitSymbol(suit, game?.cardMeta)}</Text>
           <Wrap spacing={1}>
             {allCards.filter(c => c.suit === suit).map(card => (
               <WrapItem key={`${card.rank}_${card.suit}`}>
