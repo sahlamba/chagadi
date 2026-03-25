@@ -74,11 +74,11 @@ const TurnInfo = () => {
   )
 }
 
-const TrickModal = ({ tricks, playerName: name, isOpen, onClose }) => (
+const TrickModal = ({ tricks, title, isOpen, onClose }) => (
   <Modal isOpen={isOpen} onClose={onClose} size="sm" isCentered>
     <ModalOverlay />
     <ModalContent bg="gray.800" color="white">
-      <ModalHeader fontSize="sm">{name}'s Tricks</ModalHeader>
+      <ModalHeader fontSize="sm">{title}</ModalHeader>
       <ModalCloseButton color="red.300" />
       <ModalBody pb={4}>
         {tricks.map((t, i) => (
@@ -109,7 +109,7 @@ const MyTricksButton = () => {
       <Button size="xs" variant="outline" colorScheme="yellow" onClick={onOpen}>
         My tricks: {tricks.length} ({score} pts)
       </Button>
-      <TrickModal tricks={tricks} playerName="You" isOpen={isOpen} onClose={onClose} />
+      <TrickModal tricks={tricks} title="Your Tricks" isOpen={isOpen} onClose={onClose} />
     </>
   )
 }
@@ -184,7 +184,7 @@ const GameOverContent = () => {
       {modalPlayer && (
         <TrickModal
           tricks={modalPlayer.wonTricks || []}
-          playerName={modalPlayer.player.name}
+          title={`${modalPlayer.player.name}'s Tricks`}
           isOpen={isOpen}
           onClose={onClose}
         />
