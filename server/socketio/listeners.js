@@ -152,11 +152,11 @@ const onSelectTrump = (_io, _socket, { gameCode, player, suitName }, callback) =
   } catch (e) { callback(errorToJson(e)) }
 }
 
-const onSelectAllies = (_io, _socket, { gameCode, player, card1, card2 }, callback) => {
+const onSelectAllies = (_io, _socket, { gameCode, player, allyCards }, callback) => {
   try {
     validateGameCode(gameCode)
     validatePlayer(player)
-    Chagadi.selectAllies(gameCode, player, card1, card2)
+    Chagadi.selectAllies(gameCode, player, ...allyCards)
     emitToEachPlayer(_io, gameCode)
     callback()
   } catch (e) { callback(errorToJson(e)) }

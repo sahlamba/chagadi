@@ -71,7 +71,7 @@ const TurnInfo = () => {
           Reveal Trump
         </Button>
       )}
-      <Text fontSize="xs" color="gray.500">Turn {(game.turnNumber || 0) + 1} / 8</Text>
+      <Text fontSize="xs" color="gray.500">Turn {(game.turnNumber || 0) + 1} / {game.settings?.maxPlayers === 4 ? 13 : 8}</Text>
     </VStack>
   )
 }
